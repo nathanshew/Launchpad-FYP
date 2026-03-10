@@ -812,6 +812,129 @@ Notes:
 
 ---
 
+### 2026-03-10 - HTML Report Trade Size (USD) Display
+**Request**: "can we have Optimal trade size as in USD please thx"
+
+**Instructions Given to AI**:
+- Convert the optimal trade size display from token amounts to USD values
+- Maintain precision and readability
+- Update both calculation and report generation
+
+**AI Actions Taken**:
+1. **Extended ArbitrageOpportunity struct**:
+   - Added `optimalTradeSizeUsd` field to store trade size in USD
+
+2. **Updated ArbitrageAnalyzer**:
+   - Calculate USD value: `optimalTradeSizeUsd = optimalTradeSize * tokenUsdPrice`
+   - Set this during trade size optimization loop
+
+3. **Updated HTMLExporter**:
+   - Changed column header from "Optimal Trade Size" to "Optimal Trade Size (USD)"
+   - Changed output precision from 8 decimals to 2 decimals (appropriate for USD amounts)
+   - Display `optimalTradeSizeUsd` instead of `optimalTradeSize`
+
+4. **Regenerated Report**:
+   - Rebuilt all components
+   - Re-ran arbitrage analysis
+   - Generated new report.html with USD trade sizes
+
+**Test Results**:
+- Part 1 tests: 10/10 passing ✓
+- Part 2 tests: 6/6 passing ✓
+- Report examples:
+  - Rank #1: $1,340.35 USD (previously 42.28 tokens)
+  - Rank #2: $779.38 USD (previously 0.43 tokens)
+  - Rank #4: $334.03 USD (previously 2,900,860 tokens)
+
+**Files Created/Edited**:
+- Updated: `src/ArbitrageAnalyzer.h` - Added `optimalTradeSizeUsd` field
+- Updated: `src/ArbitrageAnalyzer.cpp` - Calculate USD trade size value
+- Updated: `src/HTMLExporter.cpp` - Display USD amounts with proper formatting
+- Regenerated: `report.html` - Now shows USD trade sizes
+- Updated: `Documentation/AI_USE.md` - This log entry
+
+**Outcome**:
+- Trade sizes now displayed in human-readable USD format
+- Much clearer financial perspective on optimal trade execution
+- Improved report usability and clarity for stakeholders
+
+---
+
+### 2026-03-10 - Best Practices Documentation
+**Request**: "good, now give me a list of good swe practices, and a good list of oop practices, maybe Practices.txt in documentation"
+
+**Instructions Given to AI**:
+- Create comprehensive SWE best practices list based on project implementation
+- Create comprehensive OOP best practices list based on project design
+- Organize in Documentation/PRACTICES.txt
+- Use project examples to illustrate practices
+
+**AI Actions Taken**:
+- Created `Documentation/PRACTICES.txt` with detailed sections:
+  1. **15 Good SWE Practices** with project examples:
+     - Modular architecture (8 single-responsibility classes)
+     - CMake build system management
+     - Google Test framework integration
+     - Code comments and documentation standards
+     - Naming conventions applied
+     - Separation of concerns (data/logic/presentation)
+     - Error handling and validation patterns
+     - Version control practices with .gitignore
+     - Configuration management (.env.example)
+     - Automated documentation generation
+     - Cross-language integration (C++ → TypeScript → Solidity)
+     - Performance consciousness (liquidity filter, max depth limits)
+  
+  2. **15 Good OOP Practices** demonstrating:
+     - Single Responsibility Principle (Token, Pool, Graph, CycleDetector classes)
+     - Encapsulation (private members, public getters)
+     - Inheritance patterns (Exporter base, derived classes)
+     - Composition over inheritance (ArbitrageOpportunity contains Cycle)
+     - Const correctness (const methods, const parameters)
+     - Move semantics and rvalue references
+     - RAII for resource management
+     - Clear interfaces and contracts
+     - Proper constructor initialization
+     - Standard library usage (unordered_map, vector, set, sort)
+     - Anti-pattern avoidance (no god objects, no global state)
+     - Contract documentation
+     - Exception safety
+     - Template usage (minimal, appropriate)
+     - OOP-driven testing strategy
+  
+  3. **Applied Design Patterns**:
+     - Factory Pattern (Graph::addPool())
+     - Strategy Pattern (trade size fractions, ranking strategies)
+     - Adapter Pattern (Exporters format conversion)
+     - Visitor Pattern (conceptual, DFS traversal)
+  
+  4. **Code Quality Metrics**:
+     - Test coverage statistics
+     - Modularity score
+     - Naming consistency percentage
+     - Documentation ratios
+  
+  5. **Future Enhancement Recommendations**:
+     - Logging framework integration
+     - Performance profiling setup
+     - CI/CD pipeline implementation
+     - Database persistence layer
+     - Caching layer design
+     - Monitoring/metrics collection
+
+**Files Created/Edited**:
+- Created: `Documentation/PRACTICES.txt` (comprehensive best practices guide)
+- Updated: `Documentation/AI_USE.md` - This log entry
+
+**Outcome**:
+- Complete reference document for SWE and OOP best practices
+- Tied to actual project implementation examples
+- Useful for code reviews, knowledge transfer, and onboarding
+- Documents both "what we did right" and "what to do in future projects"
+- Provides concrete examples of patterns and principles in action
+
+---
+
 ### 2026-03-10 - Executive Summary Creation
 **Request**: "Refer to the REPORT.md and AI_USE.md, give me an EXECUTIVE_SUMMARY.md, which has a 200 word summary for both."
 
@@ -835,3 +958,48 @@ Notes:
 - Comprehensive yet concise coverage of both technical approach (REPORT.md) and AI methodology (AI_USE.md)
 - Metrics table provides at-a-glance project status validation
 - All project requirements and results documented and summarized
+
+---
+
+### 2026-03-10 - 30-Practice Completion Iteration (Codebase Hardening)
+**Request**: "Okay, please continue iterating to ensure that all 30 are done"
+
+**Instructions Given to AI**:
+- Continue practical refactoring to close remaining best-practice gaps
+- Prioritize config centralization, interface safety, and error handling
+- Rebuild and rerun tests after changes
+
+**AI Actions Taken**:
+- Replaced remaining hardcoded strategy/threshold values with `Config` constants:
+   - `ArbitrageAnalyzer.cpp`: trade-size fractions and reserve ratio viability check
+   - `CycleDetector.cpp`: progress update interval and minimum cycle-length threshold
+   - `CycleDetector.h`: default depth now uses `Config::MAX_CYCLE_DEPTH`
+- Improved `main.cpp` CLI robustness:
+   - Added guarded `maxDepth` parsing with clear error messages
+   - Enforced `maxDepth >= Config::MIN_CYCLE_LENGTH`
+- Hardened domain invariants and interfaces:
+   - `Token.cpp`: reject empty token id / negative decimals
+   - `Pool.cpp`: reject empty pool id, null tokens, duplicate token pair, negative reserves
+   - `Graph.cpp`: reject null/invalid pool insertions
+- Improved JSON validation export precision and correctness:
+   - `JSONExporter.cpp`: convert using start-token decimals (instead of fixed 18)
+   - Added safe integer-string increment for `minOut = amountIn + 1` smallest unit
+
+**Files Edited**:
+- Updated: `src/main.cpp`
+- Updated: `src/ArbitrageAnalyzer.cpp`
+- Updated: `src/CycleDetector.h`
+- Updated: `src/CycleDetector.cpp`
+- Updated: `src/Token.cpp`
+- Updated: `src/Pool.cpp`
+- Updated: `src/Graph.cpp`
+- Updated: `src/JSONExporter.cpp`
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Verification**:
+- Build: `cmake --build build --config Debug` passed
+- Tests: `ctest --test-dir build -C Debug --output-on-failure` passed (`100%`, `0 failed`)
+
+**Outcome**:
+- Refactor checklist items for Token, Pool, Graph, CycleDetector, ArbitrageAnalyzer, Exporters, and main are now completed
+- Best-practice implementation is more consistent with documented standards (configuration, contracts, error handling, and deterministic export behavior)

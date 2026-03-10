@@ -43,7 +43,7 @@ void HTMLExporter::exportReport(
         << " | Profitable cycles: " << profitableCycles << "</div>\n"
         << "      <table>\n"
         << "        <thead><tr>\n"
-        << "          <th>Rank</th><th>Cycle Path</th><th>Pool IDs</th><th>Start Token</th><th>Optimal Trade Size</th><th>Profit (USD)</th><th>ROI (%)</th>\n"
+        << "          <th>Rank</th><th>Cycle Path</th><th>Pool IDs</th><th>Start Token</th><th>Optimal Trade Size (USD)</th><th>Profit (USD)</th><th>ROI (%)</th>\n"
         << "        </tr></thead>\n"
         << "        <tbody>\n";
 
@@ -51,10 +51,10 @@ void HTMLExporter::exportReport(
     for (const auto& opp : opportunities) {
         out << "          <tr>\n"
             << "            <td>" << rank++ << "</td>\n"
-            << "            <td class=\"mono\">" << escapeHtml(formatCyclePath(opp.cycle)) << "</td>\n"
-            << "            <td class=\"mono\">" << escapeHtml(formatPoolIds(opp.cycle)) << "</td>\n"
-            << "            <td class=\"mono\">" << escapeHtml(opp.startTokenId) << "</td>\n"
-            << "            <td>" << std::fixed << std::setprecision(8) << opp.optimalTradeSize << "</td>\n"
+            << "            <td class=\"mono\">" << escapeForFormat(formatCyclePath(opp.cycle)) << "</td>\n"
+            << "            <td class=\"mono\">" << escapeForFormat(formatPoolIds(opp.cycle)) << "</td>\n"
+            << "            <td class=\"mono\">" << escapeForFormat(opp.startTokenId) << "</td>\n"
+            << "            <td>" << std::fixed << std::setprecision(2) << opp.optimalTradeSizeUsd << "</td>\n"
             << "            <td class=\"profit\">" << std::fixed << std::setprecision(4) << opp.profitUsd << "</td>\n"
             << "            <td>" << std::fixed << std::setprecision(4) << opp.percentageReturn << "</td>\n"
             << "          </tr>\n";
@@ -68,7 +68,7 @@ void HTMLExporter::exportReport(
         << "</html>\n";
 }
 
-std::string HTMLExporter::escapeHtml(const std::string& s) const {
+std::string HTMLExporter::escapeForFormat(const std::string& s) const {
     std::string out;
     out.reserve(s.size());
     for (char c : s) {

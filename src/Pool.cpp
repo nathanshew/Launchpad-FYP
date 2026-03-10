@@ -20,7 +20,20 @@ Pool::Pool(
       reserve1_(reserve1),
       reserveUsd_(reserveUsd),
       token0Price_(token0Price),
-      token1Price_(token1Price) {}
+      token1Price_(token1Price) {
+    if (poolId_.empty()) {
+        throw std::invalid_argument("Pool id cannot be empty");
+    }
+    if (!token0_ || !token1_) {
+        throw std::invalid_argument("Pool tokens cannot be null");
+    }
+    if (token0_->id() == token1_->id()) {
+        throw std::invalid_argument("Pool tokens must be distinct");
+    }
+    if (reserve0_ < 0.0 || reserve1_ < 0.0 || reserveUsd_ < 0.0) {
+        throw std::invalid_argument("Pool reserves and reserveUsd cannot be negative");
+    }
+}
 
 const std::string& Pool::id() const { return poolId_; }
 

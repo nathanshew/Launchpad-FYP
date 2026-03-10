@@ -6,6 +6,7 @@
 
 #include "ArbitrageAnalyzer.h"
 #include "CycleDetector.h"
+#include "Config.h"
 #include "Graph.h"
 #include "HTMLExporter.h"
 #include "JSONExporter.h"
@@ -25,10 +26,10 @@
  */
 
 int main(int argc, char** argv) {
-    // Parse command-line arguments (all optional with defaults)
-    std::string inputFile = "v2pools.json";      // Pool snapshot JSON
-    std::string outputFile = "report.html";      // Output HTML report
-    int maxDepth = 5;                            // Max swaps per cycle (3-5 recommended)
+    // Parse command-line arguments (all optional with defaults from Config)
+    std::string inputFile = Config::DEFAULT_INPUT_FILE;      // Pool snapshot JSON
+    std::string outputFile = Config::DEFAULT_HTML_OUTPUT;    // Output HTML report
+    int maxDepth = Config::MAX_CYCLE_DEPTH;                  // Max swaps per cycle
 
     if (argc >= 2) {
         inputFile = argv[1];
@@ -37,7 +38,17 @@ int main(int argc, char** argv) {
         outputFile = argv[2];
     }
     if (argc >= 4) {
-        maxDepth = std::stoi(argv[3]);
+        try {
+            maxDepth = std::stoi(argv[3]);
+        } catch (const std::exception&) {
+            std::cerr << "Invalid maxDepth argument: '" << argv[3] << "'. Expected integer.\n";
+            return 1;
+        }
+        if (maxDepth < Config::MIN_CYCLE_LENGTH) {
+            std::cerr << "Invalid maxDepth argument: must be >= "
+                      << Config::MIN_CYCLE_LENGTH << ".\n";
+            return 1;
+        }
     }
 
     try {
@@ -50,15 +61,14 @@ int main(int argc, char** argv) {
 
         // STEP 2: Filter pools by liquidity to reduce search space
         // Without this, cycle detection on 33k+ tokens is prohibitively slow
-        double minReserveUSD = 10000.0;  // Only consider pools with $10k+ liquidity
         std::vector<std::shared_ptr<Pool>> filteredPools;
         for (const auto& pool : parsed.pools) {
-            if (pool->reserveUsd() >= minReserveUSD) {
+            if (pool->reserveUsd() >= Config::MIN_RESERVE_USD) {
                 filteredPools.push_back(pool);
             }
         }
         std::cout << "Filtered to high-liquidity pools: " << filteredPools.size() 
-                  << " (>= $" << minReserveUSD << ")\n";
+                  << " (>= $" << Config::MIN_RESERVE_USD << ")\n";
     // STEP 3: Build graph from filtered pools
 
         Graph graph;
@@ -79,8 +89,7 @@ int main(int argc, char** argv) {
         std::vector<ArbitrageOpportunity> opportunities = analyzer.analyzeCycles(cycles);
         std::cout << "Profitable cycles: " << opportunities.size() << "\n";
     // STEP 6: Export top 10 to HTML report
-
-        size_t topN = std::min<size_t>(10, opportunities.size());
+        size_t topN = std::min<size_t>(Config::REPORT_TOP_N, opportunities.size());
         std::vector<ArbitrageOpportunity> top(opportunities.begin(), opportunities.begin() + topN);
 
         HTMLExporter exporter;
@@ -89,15 +98,13 @@ int main(int argc, char** argv) {
         std::cout << "Wrote HTML report: " << outputFile << "\n";
 
         // STEP 7: Export cycles for Part 2 validation
-        // Placeholder validator address - update after Part 2 deployment
-        std::string validatorAddress = "0xYourValidatorAddress";
-        std::string jsonOutputFile = "part1_cycles_for_validation.json";
+        std::string validatorAddress = Config::PLACEHOLDER_VALIDATOR_ADDRESS;
+        std::string jsonOutputFile = Config::DEFAULT_JSON_OUTPUT;
         
         JSONExporter jsonExporter;
-        jsonExporter.exportForValidation(top, jsonOutputFile, validatorAddress, 10);
-        
+        jsonExporter.exportForValidation(top, jsonOutputFile, validatorAddress, Config::REPORT_TOP_N);
         std::cout << "Wrote Part 2 validation input: " << jsonOutputFile << "\n";
-        std::cout << "Update validatorAddress in source before Part 2 validation.\n";
+        std::cout << "Update Config::PLACEHOLDER_VALIDATOR_ADDRESS before Part 2 validation.\n";
         
         return 0;
     } catch (const std::exception& ex) {

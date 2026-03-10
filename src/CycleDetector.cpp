@@ -1,5 +1,7 @@
 #include "CycleDetector.h"
 
+#include "Config.h"
+
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -17,7 +19,7 @@ std::vector<Cycle> CycleDetector::findCycles(const Graph& graph, int maxDepth) c
     for (const auto& start : starts) {
         processed++;
         // Progress logging for long-running searches
-        if (processed % 1000 == 0 || processed == totalTokens) {
+        if (processed % Config::PROGRESS_UPDATE_INTERVAL == 0 || processed == totalTokens) {
             std::cout << "Processed " << processed << "/" << totalTokens 
                       << " tokens, found " << cycles.size() << " unique cycles\n";
         }
@@ -61,7 +63,7 @@ void CycleDetector::dfs(
         const std::string& next = edge.toTokenId;
 
         // CYCLE FOUND: We've returned to the starting token!
-        if (next == start && depth + 1 >= 2) {  // Need at least 2 swaps for a valid cycle
+        if (next == start && depth + 1 >= (Config::MIN_CYCLE_LENGTH - 1)) {
             std::vector<std::string> closedPath = tokenPath;
             closedPath.push_back(start);  // Close the cycle by adding start token again
             

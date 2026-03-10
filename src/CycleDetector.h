@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "Config.h"
 #include "Graph.h"
 
 /**
@@ -41,7 +42,7 @@ public:
      * @param maxDepth Maximum number of swaps in a cycle (typically 3-5)
      * @return Vector of unique cycles found
      */
-    std::vector<Cycle> findCycles(const Graph& graph, int maxDepth = 5) const;
+    std::vector<Cycle> findCycles(const Graph& graph, int maxDepth = Config::MAX_CYCLE_DEPTH) const;
 
 private:
     /**

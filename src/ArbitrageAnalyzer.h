@@ -14,7 +14,8 @@
  */
 struct ArbitrageOpportunity {
     Cycle cycle;                        // The token path and pools involved
-    double optimalTradeSize = 0.0;      // Starting amount that maximizes profit
+    double optimalTradeSize = 0.0;      // Starting amount that maximizes profit (in tokens)
+    double optimalTradeSizeUsd = 0.0;   // Starting amount in USD (calculated from token price)
     double profitUsd = 0.0;             // Profit in USD (used for ranking)
     double percentageReturn = 0.0;      // ROI as percentage
     std::vector<double> amounts;        // Amount at each step of the cycle

@@ -1,8 +1,16 @@
 #include "Graph.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 void Graph::addPool(const std::shared_ptr<Pool>& pool) {
+    if (!pool) {
+        throw std::invalid_argument("Cannot add null pool to graph");
+    }
+    if (!pool->token0() || !pool->token1()) {
+        throw std::invalid_argument("Pool in graph must have non-null tokens");
+    }
+
     // Create bidirectional edges: both token0->token1 and token1->token0
     // This allows cycle detection to traverse the graph in both directions
     Edge forward{pool->token0()->id(), pool->token1()->id(), pool};

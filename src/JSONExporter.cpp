@@ -4,7 +4,47 @@
 #include <cmath>
 #include <fstream>
 #include <iomanip>
+#include <limits>
 #include <sstream>
+#include <stdexcept>
+
+namespace {
+
+std::string toWeiString(double amount, int decimals) {
+    if (!std::isfinite(amount) || amount < 0.0) {
+        throw std::invalid_argument("Amount must be finite and non-negative for wei conversion");
+    }
+    if (decimals < 0 || decimals > 18) {
+        throw std::invalid_argument("Token decimals out of supported range [0, 18]");
+    }
+
+    // Use long double so large notional trade sizes can still be represented for JSON export.
+    long double scale = std::pow(10.0L, static_cast<long double>(decimals));
+    long double scaled = std::floor(static_cast<long double>(amount) * scale + 1e-9L);
+    if (!std::isfinite(static_cast<double>(scaled))) {
+        throw std::overflow_error("Converted wei amount is out of range");
+    }
+
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(0) << scaled;
+    return oss.str();
+}
+
+std::string addOneUnit(const std::string& nonNegativeInteger) {
+    std::string out = nonNegativeInteger;
+    int i = static_cast<int>(out.size()) - 1;
+    while (i >= 0 && out[static_cast<size_t>(i)] == '9') {
+        out[static_cast<size_t>(i)] = '0';
+        --i;
+    }
+    if (i < 0) {
+        return "1" + out;
+    }
+    out[static_cast<size_t>(i)] = static_cast<char>(out[static_cast<size_t>(i)] + 1);
+    return out;
+}
+
+}  // namespace
 
 void JSONExporter::exportForValidation(
     const std::vector<ArbitrageOpportunity>& opportunities,
@@ -24,17 +64,16 @@ void JSONExporter::exportForValidation(
         const auto& opp = opportunities[i];
         const Cycle& cycle = opp.cycle;
 
-        // Convert optimal trade size to wei (assuming 18 decimals for simplicity)
-        // In production, would need to look up actual token decimals
-        // Use string conversion to avoid overflow
-        std::ostringstream amountStream;
-        amountStream << std::fixed << std::setprecision(0) << (opp.optimalTradeSize * 1e18);
-        std::string amountInWei = amountStream.str();
-        
-        // minOut = amountIn + 1 (require any profit for validation)
-        std::ostringstream minOutStream;
-        minOutStream << std::fixed << std::setprecision(0) << (opp.optimalTradeSize * 1e18 + 1.0);
-        std::string minOutWei = minOutStream.str();
+        if (cycle.edges.empty()) {
+            throw std::runtime_error("Cycle must include at least one edge for validation export");
+        }
+        int startTokenDecimals = cycle.edges.front().pool->isToken0(cycle.edges.front().fromTokenId)
+            ? cycle.edges.front().pool->token0()->decimals()
+            : cycle.edges.front().pool->token1()->decimals();
+
+        // Convert to smallest units using the start token's decimals.
+        std::string amountInWei = toWeiString(opp.optimalTradeSize, startTokenDecimals);
+        std::string minOutWei = addOneUnit(amountInWei);
 
         out << "  {\n";
         out << "    \"rank\": " << (i + 1) << ",\n";

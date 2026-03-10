@@ -1,5 +1,7 @@
 #include "ArbitrageAnalyzer.h"
 
+#include "Config.h"
+
 #include <algorithm>
 #include <cmath>
 #include <unordered_map>
@@ -52,7 +54,10 @@ std::vector<ArbitrageOpportunity> ArbitrageAnalyzer::analyzeCycles(const std::ve
         // Test 3 trade sizes: 1%, 10%, 20% of first pool's input reserve
         // Smaller trades have less slippage but lower absolute profit
         // Larger trades have more slippage but potentially higher absolute profit
-        std::vector<double> sizeFractions{0.01, 0.10, 0.20};
+        std::vector<double> sizeFractions{
+            Config::TRADE_SIZE_FRACTION_1,
+            Config::TRADE_SIZE_FRACTION_2,
+            Config::TRADE_SIZE_FRACTION_3};
         bool foundValid = false;
         ArbitrageOpportunity best;
 
@@ -77,6 +82,7 @@ std::vector<ArbitrageOpportunity> ArbitrageAnalyzer::analyzeCycles(const std::ve
                 foundValid = true;
                 best.cycle = cycle;
                 best.optimalTradeSize = startAmount;
+                best.optimalTradeSizeUsd = startAmount * priceIt->second;
                 best.profitUsd = profitUsd;
                 best.percentageReturn = roi;
                 best.amounts = std::move(sim.amounts);
@@ -168,7 +174,7 @@ ArbitrageAnalyzer::SimulationResult ArbitrageAnalyzer::simulateCycle(const Cycle
 
         // VIABILITY CHECK from PRD: trade size must be <= 20% of reserve
         // Prevents unrealistic trades that would cause extreme slippage
-        if ((amount / reserveIn) > 0.20) {
+        if ((amount / reserveIn) > Config::MAX_INPUT_RESERVE_RATIO) {
             return result;  // Fails viability check
         }
 
