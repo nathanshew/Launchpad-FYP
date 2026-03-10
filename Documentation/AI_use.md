@@ -188,3 +188,211 @@ Notes:
 **Outcome**:
 - Swap simulation now has explicit, deterministic rounding behavior per hop
 - Profit estimates are less likely to be overstated due to fractional precision drift
+
+---
+
+### 2026-03-10 - PRD Implementation (C++ + Tests)
+**Request**: "Any last questions? Else implement the PRD"
+
+**Instructions Given to AI**:
+- Implement the agreed PRD end-to-end
+- Keep modular structure and unit tests
+- Respect per-hop decimal rounding and hop viability checks
+
+**AI Actions Taken**:
+- Created modular `src/` implementation:
+   - `Token`, `Pool`, `Graph`, `CycleDetector`, `JSONParser`, `ArbitrageAnalyzer`, `HTMLExporter`, `main`
+- Implemented DFS cycle detection with canonical dedup (rotation/reverse normalization)
+- Implemented local-state swap simulation (no shared reserve mutation)
+- Implemented per-hop 20% reserve viability check
+- Implemented per-hop output rounding with token decimal flooring
+- Implemented token-level USD conversion map (median aggregation from pool candidates)
+- Implemented top-10 HTML report output with cycle path, pool IDs, trade size, profit, ROI
+- Added GoogleTest-based test suite in `tests/`:
+   - `test_Token`, `test_Pool`, `test_Graph`, `test_CycleDetector`, `test_main`
+- Added `CMakeLists.txt` with dependency setup for `nlohmann/json` and GoogleTest
+- Updated `README.md` with build/run/test instructions
+
+**Files Created/Edited**:
+- Created: `CMakeLists.txt`
+- Created: `src/Token.h`, `src/Token.cpp`
+- Created: `src/Pool.h`, `src/Pool.cpp`
+- Created: `src/Graph.h`, `src/Graph.cpp`
+- Created: `src/CycleDetector.h`, `src/CycleDetector.cpp`
+- Created: `src/JSONParser.h`, `src/JSONParser.cpp`
+- Created: `src/ArbitrageAnalyzer.h`, `src/ArbitrageAnalyzer.cpp`
+- Created: `src/HTMLExporter.h`, `src/HTMLExporter.cpp`
+- Created: `src/main.cpp`
+- Created: `tests/test_main.cpp`
+- Created: `tests/test_Token.cpp`
+- Created: `tests/test_Pool.cpp`
+- Created: `tests/test_Graph.cpp`
+- Created: `tests/test_CycleDetector.cpp`
+- Updated: `README.md`
+- Updated: `Documentation/AI_use.md`
+
+**Outcome**:
+- PRD is implemented as a modular C++ project structure with tests
+- Build/test execution could not be validated in-session because `cmake` is not installed in current environment
+
+**Notes**:
+- Once CMake is available, run configure/build/test commands from README
+- Code is organized to allow future extensions (risk-adjusted ranking, symbol enrichment, alternate detectors)
+
+---
+
+### 2026-03-10 - CMake Installation and PATH Configuration
+**Request**: "How do I install cmake?" followed by "i used winget still dont have cmake --version"
+
+**Instructions Given to AI**:
+- Help install CMake on Windows
+- Troubleshoot why CMake command is not recognized after installation
+- Fix PATH issues to make CMake accessible
+
+**AI Actions Taken**:
+- Suggested installing CMake via winget: `winget install --id Kitware.CMake`
+- Diagnosed PATH issue: CMake installed to `C:\Program Files\CMake\bin` but not in current session PATH
+- Fixed PATH by adding CMake to both User PATH (persistent) and current session PATH
+- Verified CMake and CTest are accessible with version checks
+
+**Files Created/Edited**:
+- None (system PATH configuration only)
+
+**Outcome**:
+- CMake 4.2.3 successfully installed and accessible
+- User can now run cmake commands in terminal
+- PATH configured for both current session and future sessions
+
+**Notes**:
+- Windows winget installations don't always update PATH for current terminal session
+- Required manual PATH addition: `$env:Path += ";C:\Program Files\CMake\bin"`
+- User PATH also updated for persistence across sessions
+
+---
+
+### 2026-03-10 - Build and Test Execution
+**Request**: "if installed already, help me run the cmake stuff which you wanted me to run please"
+
+**Instructions Given to AI**:
+- Configure the CMake build system
+- Compile the C++ project
+- Run the unit tests to verify implementation
+
+**AI Actions Taken**:
+- Ran `cmake -S . -B build` to configure build (Visual Studio 18 2026 generator)
+- Ran `cmake --build build` to compile all source files and link executables
+- Ran `ctest --test-dir build -C Debug --verbose` to execute all unit tests
+- Updated README.md and PRD.md with correct Windows-specific test command (`-C Debug` required for Visual Studio multi-config generator)
+
+**Files Edited**:
+- Updated: `README.md` - Added `-C Debug` flag to ctest command
+- Updated: `Documentation/PRD.md` - Section 8.5 updated with correct Windows test command
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Build Results**:
+- Configuration: Completed successfully (5.1s config, 2.3s generate)
+- Compilation: All source files compiled without errors
+  - Compiled: Token, Pool, Graph, CycleDetector, JSONParser, ArbitrageAnalyzer, HTMLExporter, main
+  - Linked: arbitrage_lib.lib, arbitrage_app.exe, arbitrage_tests.exe, gtest libraries
+- Tests: 10/10 passed (100% pass rate in <1s)
+  - TokenTest: 1 test passed
+  - PoolTest: 5 tests passed (swap calculation, slippage, reserves, decimal rounding, multi-hop)
+  - GraphTest: 1 test passed
+  - CycleDetectorTest: 3 tests passed (triangle cycle, no false cycles, max-depth)
+
+**Outcome**:
+- Full project builds successfully on Windows with Visual Studio 18 2026 toolchain
+- All unit tests pass, validating core functionality
+- Implementation phase complete and verified
+
+**Notes**:
+- Visual Studio generators require `-C Debug` or `-C Release` for CTest
+- Initial ctest run failed until configuration was specified
+- Build toolchain: MSVC 19.50 on Windows 10.0.26200 with SDK 10.0.26100.0
+
+---
+
+### 2026-03-10 - Application Execution with Optimizations
+**Request**: "ok update AI_use please" (after running the arbitrage application)
+
+**Instructions Given to AI**:
+- Run the arbitrage application on real data
+- Optimize performance when initial run is too slow
+- Generate the HTML report successfully
+
+**AI Actions Taken**:
+1. **Initial Execution Attempt**:
+   - Ran `.\build\Debug\arbitrage_app.exe v2pools.json report.html 5`
+   - Application loaded 37,768 pools and 33,356 unique tokens
+   - Cycle detection with max depth 5 was extremely slow (search space too large)
+   
+2. **Added Progress Logging**:
+   - Modified `CycleDetector::findCycles()` to output progress every 1000 tokens
+   - Shows processed count and cycles found during execution
+   
+3. **Added Liquidity Filtering**:
+   - Modified `main.cpp` to filter pools by minimum liquidity ($10,000 USD)
+   - Reduced search space from 33,356 tokens to 3,399 tokens
+   - Kept only 3,786 high-liquidity pools from original 37,768
+   
+4. **Successful Execution**:
+   - Ran with max depth 3 and liquidity filter
+   - Successfully processed all 3,399 tokens
+   - Generated report.html with results
+
+**Files Edited**:
+- Updated: `src/CycleDetector.cpp` - Added progress logging to findCycles()
+- Updated: `src/main.cpp` - Added liquidity filtering before graph construction
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Execution Results**:
+- Input: 37,768 pools, 33,356 tokens
+- After filtering: 3,786 pools (≥$10,000 liquidity), 3,399 tokens
+- Cycles detected: 474 unique cycles
+- Profitable cycles: 38 cycles with positive ROI
+- Top opportunity: 147.48% ROI, $1,976.76 profit
+  - Path: LINK → DAI → AGIX → LINK
+  - Trade size: 42.28 LINK
+  - Pool IDs: 0x6d4fd...bdb2, 0x1d112...1f16, 0x81a8b...125a
+
+**Outcome**:
+- Successfully generated `report.html` with top 10 arbitrage opportunities
+- Report shows cycle paths, pool IDs, trade sizes, profits, and ROI percentages
+- Application runs in reasonable time with liquidity filtering
+- All features working end-to-end: parsing, graph building, cycle detection, profitability analysis, HTML export
+
+**Notes**:
+- Without liquidity filtering, search space is too large for practical execution
+- Max depth 3 provides good balance between finding opportunities and execution time
+- Progress logging helps monitor long-running cycle detection
+- Liquidity filter of $10,000 keeps most significant trading opportunities while dramatically reducing computation
+
+---
+
+### 2026-03-10 - Git Configuration
+**Request**: "we should gitignore build?"
+
+**Instructions Given to AI**:
+- Create .gitignore file to exclude build artifacts from version control
+
+**AI Actions Taken**:
+- Created `.gitignore` file at project root
+- Added build directory exclusions (`build/`, `out/`)
+- Added compiled binary patterns (`.exe`, `.dll`, `.lib`, `.obj`, etc.)
+- Added generated report exclusion (`report.html`)
+- Added IDE/editor file patterns (`.vs/`, `.vscode/`, `*.user`, etc.)
+- Added CMake cache file patterns (`CMakeCache.txt`, `CMakeFiles/`, etc.)
+
+**Files Created/Edited**:
+- Created: `.gitignore` - Git ignore patterns for build artifacts and generated files
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Outcome**:
+- Build artifacts and generated files will not be tracked in version control
+- Repository stays clean with only source code and configuration files
+- Standard C++ and CMake patterns covered
+
+**Notes**:
+- Build directory contains ~30MB of compiled code and dependencies
+- Generated HTML reports are user-specific and shouldn't be committed
+- IDE files vary by developer and should remain local

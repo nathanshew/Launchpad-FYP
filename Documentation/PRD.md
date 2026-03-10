@@ -534,11 +534,14 @@ mkdir build && cd build
 cmake ..
 cmake --build .
 
-# Run all tests
+# Run all tests (Visual Studio generator on Windows)
+ctest -C Debug --verbose
+
+# Run all tests (single-config generators like Ninja/Make)
 ctest --verbose
 
 # Or run test executable directly
-./tests/arbitrage_tests
+./Debug/arbitrage_tests
 ```
 
 ---
