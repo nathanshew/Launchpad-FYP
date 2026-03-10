@@ -26,8 +26,21 @@ async function main() {
   }
 
   const candidates: CandidateCycle[] = JSON.parse(fs.readFileSync(absolutePath, "utf8"));
+  if (candidates.length === 0) {
+    throw new Error("No candidate cycles found in input file.");
+  }
   
-  // Deploy validator on fork if testing against mainnetFork
+  const samplePool = candidates[0].pools[0];
+  const samplePoolCode = await ethers.provider.getCode(samplePool);
+  if (samplePoolCode === "0x") {
+    throw new Error(
+      `No contract code found at sample pool ${samplePool}. ` +
+      "You are likely running against a plain local Hardhat chain instead of a mainnet fork. " +
+      "Start a fork with 'npm run fork:mainnet' and rerun 'npm run validate:part1-cycles -- --network mainnetFork'."
+    );
+  }
+
+  // Deploy validator on fork if testing against a local forked chain.
   const network = await ethers.provider.getNetwork();
   let validatorAddress = candidates[0].validatorAddress;
   

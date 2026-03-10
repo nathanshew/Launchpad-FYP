@@ -10,7 +10,7 @@
     "deploy:mock-cycle": "hardhat run scripts/deployMockCycle.ts",
     "validate:part2": "hardhat run scripts/validateCycle.ts",
     "validate:part1-cycles": "hardhat run scripts/validatePart1Cycles.ts",
-    "fork:mainnet": "hardhat node --fork https://eth-mainnet.g.alchemy.com/v2/demo"
+    "fork:mainnet": "node scripts/startMainnetFork.js"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
