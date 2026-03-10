@@ -31,6 +31,30 @@ This document comprehensively logs all AI-assisted development throughout the pr
 
 ---
 
+## Project Limitations
+
+**Part 1 (Off-Chain Detection):**
+- **Stale snapshot data:** `v2pools.json` is a historical snapshot; cycles detected will not reflect current market state. A production system requires a live data feed.
+- **No MEV/slippage awareness:** The analyzer assumes trades execute in isolation. In practice, front-running bots and sandwich attacks would reduce or eliminate profit.
+- **Fixed trade size fractions:** Optimal size is probed at only three points (1%, 10%, 20% of reserve). A finer search or golden-section optimization could find a higher-profit size.
+- **Max depth 3 only for practical runtime:** Longer cycles (depth 4–5) are skipped by default due to exponential search growth. More complex opportunities are missed.
+- **USD price estimation uses median of pool ratios:** No external oracle integration. Prices are approximated from pool reserve ratios, which can be inaccurate for illiquid tokens.
+
+**Part 2 (On-Chain Validation):**
+- **View-only simulation:** `validateCycle` is a `view` function — it cannot account for gas costs, so cycles that barely break even in token terms may still be unprofitable after gas.
+- **No atomic execution:** The validator only checks profitability; it does not bundle and execute the swaps atomically. A real arbitrage bot would need a flash-loan contract to ensure atomicity.
+- **Single-path validation:** Only the exact path from Part 1 is tested. There is no fallback routing or path optimisation at validation time.
+- **Testnet mock pools:** Sepolia validation uses `MockV2Pair` contracts with synthetic reserves, not real liquidity. This validates contract logic but not real-world conditions.
+- **Reserve drift between detection and validation:** By the time Part 2 validates a cycle found in Part 1, on-chain reserves have already changed — as demonstrated by the 0/10 profitable result on the mainnet fork.
+
+
+## Areas for Improvement
+
+- **Use AI for git commit messages:** Commit titles and bodies were written manually; AI could have generated consistent, descriptive commit messages throughout.
+- **Beautify `report.html`:** The HTML output is functional but plain. Styling improvements (charts, colour-coded ROI, interactive table sorting) would improve readability.
+
+---
+
 ## Key Metrics Summary
 
 | Metric | Value | Status |
