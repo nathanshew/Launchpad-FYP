@@ -14,11 +14,16 @@ type CandidateCycle = {
 function parseArgs(): { filePath: string } {
   const args = process.argv.slice(2);
   const fileFlagIndex = args.findIndex((x) => x === "--file");
-  if (fileFlagIndex === -1 || !args[fileFlagIndex + 1]) {
-    throw new Error("Usage: npx hardhat run scripts/validateCycle.ts --network <name> --file part2_data/candidate_cycle.example.json");
+  if (fileFlagIndex !== -1 && args[fileFlagIndex + 1]) {
+    return { filePath: args[fileFlagIndex + 1] };
   }
 
-  return { filePath: args[fileFlagIndex + 1] };
+  const envPath = process.env.CYCLE_FILE;
+  if (envPath) {
+    return { filePath: envPath };
+  }
+
+  return { filePath: "part2_data/candidate_cycle.example.json" };
 }
 
 async function main() {

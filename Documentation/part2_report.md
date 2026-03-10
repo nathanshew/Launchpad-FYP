@@ -45,13 +45,13 @@ The validator reverts for:
 - Notes: Covered profitable path and all core revert conditions (length mismatch, route mismatch, zero reserve, below minOut, not profitable)
 
 ### 4.2 Testnet Validation Result
-- Network: TODO (e.g., Sepolia)
-- Validator address: TODO
-- Candidate file: TODO
-- Mode: `tx`
-- Transaction hash: TODO
-- Block number: TODO
-- Outcome: TODO (success or expected revert)
+- Network: Sepolia
+- Validator address: `0xd3f576662CDa58684ee438c07E7b314A7Ef67288`
+- Candidate file: `part2_data/candidate_cycle.sepolia.mock.json`
+- Mode: `call` (eth_call validation, no transaction)
+- Final amount out: `2168689472068604637` (raw units)
+- Profit: `1168689472068604637` (raw units)
+- Outcome: Validation success
 
 ## 5. Limitations and Notes
 

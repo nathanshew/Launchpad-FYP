@@ -1,5 +1,5 @@
 {
-  "validatorAddress": "0xYourDeployedValidator",
+  "validatorAddress": "0xd3f576662CDa58684ee438c07E7b314A7Ef67288",
   "tokens": [
     "0x00000000000000000000000000000000000000A0",
     "0x00000000000000000000000000000000000000B0",

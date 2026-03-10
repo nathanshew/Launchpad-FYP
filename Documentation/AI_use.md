@@ -591,3 +591,88 @@ Notes:
 **Outcome**:
 - Workspace naming is clearer: `tests/` (C++) vs `part2_test/` (Hardhat)
 - Ignore rules now better cover Part 2 generated/local files
+
+---
+
+### 2026-03-10 - Part 2 Sepolia Deployment Troubleshooting
+**Request**: "PS ... npm run deploy:part2 -- --network sepolia ... insufficient funds ... Help me run the script" plus follow-ups on funding/checking.
+
+**Instructions Given to AI**:
+- Diagnose why deployment failed on Sepolia
+- Help run the deploy path successfully
+- Keep `AI_use.md` updated with the support session
+
+**AI Actions Taken**:
+- Verified Part 2 deploy wiring in:
+   - `package.json` (`deploy:part2`)
+   - `hardhat.config.ts` (Sepolia network + `.env` account source)
+   - `scripts/deployValidator.ts`
+- Derived deployer address from `.env` private key and confirmed active deployer:
+   - `0xe3D2AFaB1BAAa8e84455736027Db5445Db27F6a4`
+- Queried Sepolia balance through configured RPC and confirmed `0 ETH`
+- Added preflight checks to deploy script so it now prints deployer/balance and fails fast with a clear actionable error when balance is zero
+- Re-ran deployment to verify improved output
+- Guided user on obtaining Sepolia test ETH from faucets and how to verify wallet balance before retrying deploy
+
+**Files Edited**:
+- Updated: `scripts/deployValidator.ts` - Added deployer/balance preflight and zero-balance guard
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Verification**:
+- `npm run deploy:part2 -- --network sepolia` now reports:
+   - Deployer address
+   - Current Sepolia balance
+   - Clear error if balance is `0` (instead of opaque provider stack trace)
+
+**Outcome**:
+- Root cause identified: unfunded Sepolia deployer account
+- Deployment path now has clearer diagnostics and user guidance
+- Next successful step is funding deployer with Sepolia test ETH and rerunning deploy
+
+**Notes**:
+- `VALIDATOR_ADDRESS` should remain placeholder until successful deployment prints the contract address
+- `PRIVATE_KEY` format with `0x` prefix is valid and expected in this setup
+
+---
+
+### 2026-03-10 - Sepolia Validation Success with Mock Cycle Fixtures
+**Request**: "ok yes please" (after offer to help build a valid Sepolia input JSON and run validation)
+
+**Instructions Given to AI**:
+- Create a valid Sepolia candidate cycle input
+- Run the validation script end-to-end
+- Keep docs/logs updated
+
+**AI Actions Taken**:
+- Added `scripts/deployMockCycle.ts` to deploy 3 `MockV2Pair` contracts on Sepolia and generate:
+   - `part2_data/candidate_cycle.sepolia.mock.json`
+- Added npm script:
+   - `deploy:mock-cycle` in `package.json`
+- Updated `scripts/validateCycle.ts` arg parsing so it can run without forwarded Hardhat params:
+   - supports `CYCLE_FILE` env override
+   - defaults to `part2_data/candidate_cycle.example.json`
+- Updated `part2_data/candidate_cycle.example.json` to use deployed validator address
+- Ran validation using generated mock input via env override:
+   - `CYCLE_FILE=part2_data/candidate_cycle.sepolia.mock.json`
+   - `npm run validate:part2 -- --network sepolia`
+- Updated script usage docs in `scripts/README_part2.md`
+
+**Files Created/Edited**:
+- Created: `scripts/deployMockCycle.ts`
+- Edited: `package.json`
+- Edited: `scripts/validateCycle.ts`
+- Edited: `part2_data/candidate_cycle.example.json`
+- Edited: `scripts/README_part2.md`
+- Edited: `Documentation/AI_use.md` - This log entry
+
+**Verification**:
+- Deploy validator succeeded earlier on Sepolia:
+   - `ArbitrageValidator deployed: 0xd3f576662CDa58684ee438c07E7b314A7Ef67288`
+- Validation succeeded with mock-cycle fixture:
+   - `Validation success (eth_call)`
+   - `Final amount out: 2168689472068604637`
+   - `Profit (raw units): 1168689472068604637`
+
+**Outcome**:
+- Part 2 validation path is now reproducible on Sepolia with known-good fixture data
+- User can run call/tx validation modes using documented commands

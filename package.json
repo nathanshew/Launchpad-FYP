@@ -7,6 +7,7 @@
     "build:part2": "hardhat compile",
     "test:part2": "hardhat test",
     "deploy:part2": "hardhat run scripts/deployValidator.ts",
+    "deploy:mock-cycle": "hardhat run scripts/deployMockCycle.ts",
     "validate:part2": "hardhat run scripts/validateCycle.ts"
   },
   "devDependencies": {
