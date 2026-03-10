@@ -23,6 +23,7 @@ private:
         int depth,
         int maxDepth,
         std::vector<std::string>& tokenPath,
+        std::unordered_set<std::string>& visitedTokens,
         std::vector<Edge>& edgePath,
         std::unordered_set<std::string>& usedPoolIds,
         std::vector<Cycle>& cycles,

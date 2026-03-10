@@ -20,9 +20,10 @@ std::vector<Cycle> CycleDetector::findCycles(const Graph& graph, int maxDepth) c
         }
         
         std::vector<std::string> tokenPath{start};
+        std::unordered_set<std::string> visitedTokens{start};
         std::vector<Edge> edgePath;
         std::unordered_set<std::string> usedPoolIds;
-        dfs(graph, start, start, 0, maxDepth, tokenPath, edgePath, usedPoolIds, cycles, canonicalKeys);
+        dfs(graph, start, start, 0, maxDepth, tokenPath, visitedTokens, edgePath, usedPoolIds, cycles, canonicalKeys);
     }
 
     return cycles;
@@ -35,6 +36,7 @@ void CycleDetector::dfs(
     int depth,
     int maxDepth,
     std::vector<std::string>& tokenPath,
+    std::unordered_set<std::string>& visitedTokens,
     std::vector<Edge>& edgePath,
     std::unordered_set<std::string>& usedPoolIds,
     std::vector<Cycle>& cycles,
@@ -67,16 +69,18 @@ void CycleDetector::dfs(
             continue;
         }
 
-        if (std::find(tokenPath.begin(), tokenPath.end(), next) != tokenPath.end()) {
+        if (visitedTokens.count(next) > 0) {
             continue;
         }
 
         usedPoolIds.insert(edge.pool->id());
         edgePath.push_back(edge);
         tokenPath.push_back(next);
+        visitedTokens.insert(next);
 
-        dfs(graph, start, next, depth + 1, maxDepth, tokenPath, edgePath, usedPoolIds, cycles, canonicalKeys);
+        dfs(graph, start, next, depth + 1, maxDepth, tokenPath, visitedTokens, edgePath, usedPoolIds, cycles, canonicalKeys);
 
+        visitedTokens.erase(next);
         tokenPath.pop_back();
         edgePath.pop_back();
         usedPoolIds.erase(edge.pool->id());
