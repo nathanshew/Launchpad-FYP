@@ -58,19 +58,24 @@ double Pool::getReserveForToken(const std::string& tokenId) const {
 }
 
 double Pool::simulateSwap(double amountIn, const std::string& inputTokenId, double& localReserve0, double& localReserve1) const {
+    // Validate input amount
     if (amountIn <= 0.0 || !std::isfinite(amountIn)) {
         return 0.0;
     }
 
+    // Determine which token is being swapped in
     bool inputIsToken0 = isToken0(inputTokenId);
     double reserveIn = inputIsToken0 ? localReserve0 : localReserve1;
     double reserveOut = inputIsToken0 ? localReserve1 : localReserve0;
 
+    // Validate reserves
     if (reserveIn <= 0.0 || reserveOut <= 0.0) {
         return 0.0;
     }
 
-    // Uniswap V2 formula with 0.3% fee.
+    // Apply Uniswap V2 constant product formula: x * y = k
+    // With 0.3% fee: amountOut = (reserveOut * amountIn * 997) / (reserveIn * 1000 + amountIn * 997)
+    // The 997/1000 factor applies the 0.3% fee (users pay 0.3%, LPs keep it)
     double amountInWithFee = amountIn * 997.0;
     double numerator = amountInWithFee * reserveOut;
     double denominator = reserveIn * 1000.0 + amountInWithFee;
@@ -80,16 +85,21 @@ double Pool::simulateSwap(double amountIn, const std::string& inputTokenId, doub
     }
 
     double rawAmountOut = numerator / denominator;
+    
+    // Apply per-hop decimal rounding to match ERC-20 token precision
+    // This prevents overestimating profits from fractional amounts
     int outDecimals = inputIsToken0 ? token1_->decimals() : token0_->decimals();
     double amountOut = roundDownToDecimals(rawAmountOut, outDecimals);
 
+    // Sanity check: output must be positive and less than available reserves
     if (amountOut <= 0.0 || amountOut >= reserveOut) {
         return 0.0;
     }
 
+    // Update local reserves to reflect the swap (NEVER modifies Pool's internal state)
     if (inputIsToken0) {
-        localReserve0 += amountIn;
-        localReserve1 -= amountOut;
+        localReserve0 += amountIn;  // Input token goes in
+        localReserve1 -= amountOut; // Output token comes out
     } else {
         localReserve1 += amountIn;
         localReserve0 -= amountOut;
@@ -103,6 +113,8 @@ double Pool::roundDownToDecimals(double amount, int decimals) const {
         return amount;
     }
 
+    // Floor rounding: floor(amount * 10^decimals) / 10^decimals
+    // Example: 1.23456 with decimals=3 -> floor(1234.56)/1000 = 1.234
     long double scale = std::pow(10.0L, static_cast<long double>(decimals));
     long double scaled = std::floor(static_cast<long double>(amount) * scale);
     return static_cast<double>(scaled / scale);
