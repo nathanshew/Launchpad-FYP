@@ -132,3 +132,59 @@ Notes:
 - Pool tests are most critical (swap calculations must be accurate)
 - Tests kept isolated from main source code in `tests/` directory
 - Google Test chosen for industry-standard approach and clean syntax
+
+---
+
+### 2026-03-10 - PRD Risk Mitigation Updates
+**Request**: "tell me any concerns you see from the PRD, and what problems might arise" followed by decisions to adopt specific fixes.
+
+**Instructions Given to AI**:
+- Apply resolved concerns directly to PRD
+- Add deterministic simulation rules and conversion method
+- Keep implementation practical for v1
+
+**AI Actions Taken**:
+- Added required state-isolation rule: never mutate shared pool reserves during analysis
+- Added cycle canonicalization requirement to deduplicate rotated/reversed duplicates
+- Added required per-hop viability check (`amountIn / reserveIn <= 20%`)
+- Added deterministic USD conversion strategy with token-level mapping and median aggregation
+- Clarified amount unit policy for v1 (use normalized JSON units; parse decimals but do not use in arithmetic)
+- Updated HTML output to use token IDs as primary display label for now
+- Added explicit ownership model using smart pointers (avoid raw owning pointers)
+- Updated test build command to `cmake --build .` for Windows-friendly instructions
+
+**Files Edited**:
+- Updated: `Documentation/PRD.md` - Added correctness and robustness requirements
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Outcome**:
+- PRD now addresses key correctness risks before implementation starts
+- Deterministic behavior and reproducible rankings are explicitly required
+- Scope remains practical for v1 while preserving extensibility
+
+**Notes**:
+- Remaining optional refinements (e.g., better USD oracles) can be added in later iterations
+- Current v1 choices prioritize clarity, determinism, and implementation speed
+
+---
+
+### 2026-03-10 - Hop Rounding and Decimal Precision Update
+**Request**: "Notice that for hops, the rounding has to follow decimal/units. please make sure it fits"
+
+**Instructions Given to AI**:
+- Ensure hop-by-hop simulation respects token decimal precision
+- Reflect the rule in requirements and tests
+
+**AI Actions Taken**:
+- Updated PRD to require per-hop output quantization by output token decimals
+- Added exact rounding rule: `floor(rawAmountOut * 10^d) / 10^d`
+- Updated amount-unit policy so `decimals` are now used in arithmetic via quantization
+- Added Pool test requirements for decimal rounding and multi-hop rounding propagation
+
+**Files Edited**:
+- Updated: `Documentation/PRD.md`
+- Updated: `Documentation/AI_use.md`
+
+**Outcome**:
+- Swap simulation now has explicit, deterministic rounding behavior per hop
+- Profit estimates are less likely to be overstated due to fractional precision drift

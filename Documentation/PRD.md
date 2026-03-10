@@ -123,7 +123,8 @@ tests/
 - `double calculateSwapOutput(double amountIn, bool isToken0Input)`
   - Implements: `amountOut = (reserveOut * amountIn * 997) / (reserveIn * 1000 + amountIn * 997)`
   - Accounts for 0.3% fee (997/1000)
-  - Updates reserves for simulation purposes
+  - Used only on local simulation state (not global pool objects)
+  - Applies output-token precision rounding after each hop
 - `double getReserve(Token* token)` - Get reserve for specific token
 - Getters for metadata
 
@@ -131,6 +132,20 @@ tests/
 - Uses Uniswap V2 constant product formula: `x * y = k`
 - Fee is taken from input amount before swap calculation
 - Price impact increases with trade size (slippage)
+- Global reserves loaded from JSON are immutable during analysis
+
+**Per-Hop Rounding Rule (Required)**:
+- After computing raw `amountOut`, quantize to the output token precision.
+- Quantization for token with `d` decimals:
+  - `scale = 10^d`
+  - `amountOutRounded = floor(rawAmountOut * scale) / scale`
+- Use `amountOutRounded` as input to the next hop.
+- This avoids overestimating profit and better matches unit constraints.
+
+**State Isolation Rule (Required)**:
+- The analyzer must never mutate shared `Pool` objects while evaluating opportunities.
+- For each `(cycle, trade size)` trial, copy reserves into local variables and simulate swaps on those copies.
+- This guarantees deterministic and reproducible ranking.
 
 ### 3.3 Graph Class
 **Responsibility**: Build and maintain token swap graph
@@ -171,6 +186,14 @@ struct Cycle {
 - Backtrack to explore other paths
 - Avoid revisiting same pool in one path
 
+**Cycle Canonicalization (Do First)**:
+- Deduplicate cycles by canonical signature before analysis.
+- Canonical signature rule:
+  - Convert cycle token path to a closed loop representation.
+  - Generate all rotations for forward direction and reversed direction.
+  - Pick lexicographically smallest representation as canonical key.
+- Store canonical keys in a set to prevent duplicates.
+
 ### 3.5 ArbitrageAnalyzer Class
 **Responsibility**: Evaluate profitability of cycles
 
@@ -198,9 +221,10 @@ struct ArbitrageOpportunity {
 1. Start with trade amount in starting token
 2. For each hop in cycle:
    - Calculate output using Pool's AMM formula
-   - Update pool reserves (for simulation only)
+  - Update local copied reserves only (never shared global pool state)
+  - Apply per-hop viability check
 3. Compare final amount to initial amount
-4. Convert profit to USD using reserveUSD data
+4. Convert profit to USD using token-level USD price mapping
 5. Sort by `profitUSD` descending
 
 **Trade Size Strategy (Option B)**:
@@ -208,6 +232,11 @@ struct ArbitrageOpportunity {
 - Calculate percentages of that token's reserve in first pool
 - Example: If cycle starts with ETH and first pool has 100 ETH reserve:
   - Test 1 ETH (1%), 10 ETH (10%), 20 ETH (20%)
+
+**Per-Hop Viability Check (Required)**:
+- For every hop in the cycle, compute `amountIn / reserveIn` using local simulation reserves.
+- If this ratio exceeds 20% at any hop, mark the trial invalid and skip profit computation for that trade size.
+- This keeps trade sizes realistic across the full path, not only the first pool.
 
 ### 3.6 HTMLExporter Class
 **Responsibility**: Generate human-readable output
@@ -219,7 +248,7 @@ struct ArbitrageOpportunity {
 - HTML table with top 10 opportunities
 - Columns:
   - Rank (#1-10)
-  - Cycle Path (Token symbols with arrows: ETH → USDC → DAI → ETH)
+  - Cycle Path (Token IDs with arrows: `0x... -> 0x... -> 0x... -> 0x...`)
   - Token Addresses (full addresses)
   - Pool IDs (for each hop)
   - Optimal Trade Size (in starting token)
@@ -227,6 +256,10 @@ struct ArbitrageOpportunity {
   - ROI (%)
 - Styled for readability (CSS)
 - Include summary statistics (total cycles found, profitable cycles, etc.)
+
+**Display Fallback Rule**:
+- Use token ID/address as display label in v1.
+- If symbol becomes available later, show `symbol (id)`.
 
 ### 3.7 JSONParser Class
 **Responsibility**: Parse v2pools.json into C++ objects
@@ -239,6 +272,14 @@ struct ArbitrageOpportunity {
 - Handle missing or malformed data gracefully
 - Convert string reserves to doubles
 - Create Token objects and deduplicate (same token used in multiple pools)
+
+**Amount Unit Policy (Required)**:
+- Reserve values and swap calculations use normalized token units from the JSON snapshot.
+- Do not convert to smallest on-chain integer units in v1.
+- `decimals` is parsed and used for per-hop output quantization.
+- Precision handling in v1:
+  - AMM math is computed in normalized units.
+  - Then result is floored to output token decimals before next hop.
 
 **JSON Structure to Parse**:
 ```json
@@ -299,9 +340,24 @@ finalAmount > initialAmount
    - Determine which token is input/output
    - Calculate `currentAmount = pool.calculateSwapOutput(currentAmount, direction)`
 3. Compare `currentAmount` (final) to `startingTradeSize` (initial)
-4. `profit = (currentAmount - startingTradeSize) * priceUSD`
+4. `profit = (currentAmount - startingTradeSize) * startTokenUsdPrice`
 
-### 4.3 Reserve Constraints
+### 4.3 USD Conversion Strategy (Required)
+
+Use a deterministic token-to-USD mapping built from pool snapshot fields:
+
+1. For each pool record:
+   - If `token0Price` is present, candidate USD price for token0 is:
+     - `priceUSD(token0) = reserveUSD / (2 * reserve0)`
+   - If `token1Price` is present, candidate USD price for token1 is:
+     - `priceUSD(token1) = reserveUSD / (2 * reserve1)`
+2. Aggregate candidates per token using median (robust against outliers/illiquid pools).
+3. During cycle analysis, use `startTokenUsdPrice` from this map.
+4. If a token has no USD price candidates, skip that opportunity for USD ranking.
+
+Note: We intentionally do not use pool-level `reserveUSD` directly as token price.
+
+### 4.4 Reserve Constraints
 
 **Important**: While reserves define theoretical maximum, practical limits are much lower due to slippage.
 
@@ -310,6 +366,7 @@ finalAmount > initialAmount
 - Our 20% upper limit tests the boundary but often won't be optimal
 
 **No need for explicit constraints** - the profit calculation naturally penalizes oversized trades.
+We additionally enforce per-hop 20% max input-to-reserve ratio to reject unrealistic paths.
 
 ---
 
@@ -346,8 +403,13 @@ Top 10 profitable cycles written to report.html
 - **Naming**: Use clear, descriptive names (e.g., `calculateSwapOutput` not `calc`)
 - **Comments**: Explain WHY, not what (code shows what)
 - **Error Handling**: Graceful handling of edge cases (empty cycles, invalid data)
-- **Memory Management**: Use smart pointers or proper cleanup
+- **Memory Management**: Use smart pointers with explicit ownership
 - **Const Correctness**: Use `const` where appropriate
+
+**Ownership Model (Required)**:
+- `Token` and `Pool` objects are owned by central containers using `std::shared_ptr`.
+- Graph and cycle records keep non-owning references (`std::weak_ptr` or IDs) to avoid leaks.
+- Avoid raw owning pointers in new code.
 
 ### 6.2 Modularity Checklist
 - Each class has single responsibility
@@ -416,6 +478,14 @@ TEST(PoolTest, FeeCalculation) {
 TEST(PoolTest, ReserveUpdate) {
   // Verify reserves update correctly after swap simulation
 }
+
+TEST(PoolTest, OutputRoundingByTokenDecimals) {
+  // Verify amountOut is floored to output token decimal precision
+}
+
+TEST(PoolTest, MultiHopRoundingPropagation) {
+  // Verify rounded output from hop N is exact input for hop N+1
+}
 ```
 
 #### 8.2.3 Graph Tests (`test_Graph.cpp`)
@@ -462,7 +532,7 @@ TEST(CycleDetectorTest, MaxDepthRespected) {
 # Build tests
 mkdir build && cd build
 cmake ..
-make
+cmake --build .
 
 # Run all tests
 ctest --verbose
