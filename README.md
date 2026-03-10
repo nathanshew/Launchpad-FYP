@@ -115,7 +115,7 @@ npm run validate:part1-cycles -- --network mainnetFork
 
 3. Validate a single example payload:
 ```powershell
-npm run validate:part2 -- --network mainnetFork -- --file part2_data/candidate_cycle.example.json
+$env:CYCLE_FILE="part2_data/candidate_cycle.example.json"; npm run validate:part2 -- --network mainnetFork
 ```
 
 ### Deploy Validator (Optional, testnet)
@@ -127,8 +127,10 @@ npm run deploy:part2 -- --network sepolia
 
 ### Validate a Candidate Cycle
 ```powershell
-npm run validate:part2 -- --network sepolia --file part2_data/candidate_cycle.example.json
+$env:CYCLE_FILE="part2_data/candidate_cycle.sepolia.mock.json"; npm run validate:part2 -- --network sepolia
 ```
+
+Note: `candidate_cycle.example.json` uses placeholder addresses and will revert on any live network. Use `candidate_cycle.sepolia.mock.json` for Sepolia (contains the real deployed mock pool addresses).
 
 ## Part 1 → Part 2 Validation Results
 

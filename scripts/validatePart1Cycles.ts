@@ -47,7 +47,16 @@ async function main() {
   if (network.chainId === 31337n) {
     console.log("Detected local fork - deploying validator...");
     const Validator = await ethers.getContractFactory("ArbitrageValidator");
-    const validator = await Validator.deploy();
+    
+    // Get current gas prices and set deployment overrides for mainnet fork
+    const feeData = await ethers.provider.getFeeData();
+    const maxFeePerGas = feeData.maxFeePerGas ? (feeData.maxFeePerGas * 150n) / 100n : undefined;
+    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas ? (feeData.maxPriorityFeePerGas * 150n) / 100n : undefined;
+    
+    const validator = await Validator.deploy({
+      maxFeePerGas,
+      maxPriorityFeePerGas
+    });
     await validator.waitForDeployment();
     validatorAddress = await validator.getAddress();
     console.log("Validator deployed at:", validatorAddress);
