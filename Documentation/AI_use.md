@@ -447,3 +447,147 @@ Notes:
 **Notes**:
 - Comments were added to explain "why" and "how" for complex logic, not to restate obvious syntax
 - No functional changes intended in this pass beyond readability/documentation improvements
+
+---
+
+### 2026-03-10 - Part 2 PRD Creation (On-Chain Validation)
+**Request**: "okay lets do that, please give me a PRD, maybe PRD part 2? Or do you think it should be merged with existing PRD"
+
+**Instructions Given to AI**:
+- Decide whether Part 2 should be merged into existing PRD or separated
+- Create a Part 2 PRD aligned to `Task.txt` requirements
+
+**AI Actions Taken**:
+- Recommended keeping Part 2 as a separate PRD because it uses a different stack (Solidity + scripts) from Part 1 (C++/CMake)
+- Created `Documentation/PRD_part2.md` with complete Part 2 requirements:
+   - contract function signature and interface
+   - calldata/data encoding format (`tokens[]`, `pools[]`, `amountIn`, `minOut`)
+   - hop-by-hop validation logic using live reserves and Uniswap V2 math
+   - explicit revert conditions
+   - script requirements for submitting candidate cycles
+   - testing strategy and acceptance criteria
+
+**Files Created/Edited**:
+- Created: `Documentation/PRD_part2.md`
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Outcome**:
+- Part 2 planning is now clearly separated and implementation-ready
+- Documentation now maps directly to Part 2 deliverables in `Task.txt`
+
+**Notes**:
+- Existing `Documentation/PRD.md` remains the authoritative PRD for Part 1
+- Final combined reporting can reference both PRD files
+
+---
+
+### 2026-03-10 - PRD Part 2 Alignment Pass (Task.txt)
+**Request**: "look through PRD part 2 and task.txt, is there anything else i need to add for PRD part 2?"
+
+**Instructions Given to AI**:
+- Compare Part 2 PRD against Task.txt and identify any missing requirements
+- Update PRD Part 2 if gaps are found
+
+**AI Actions Taken**:
+- Performed line-by-line requirement mapping between `Documentation/Task.txt` and `Documentation/PRD_part2.md`
+- Added explicit ABI encoding statement for "encoded cycle data" wording
+- Tightened script requirements to include Ethereum testnet transaction mode
+- Added acceptance criterion requiring recorded testnet validation evidence (tx hash + block number)
+
+**Files Edited**:
+- Updated: `Documentation/PRD_part2.md`
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Outcome**:
+- PRD Part 2 now maps more explicitly to Task.txt phrasing and deliverables
+- No major requirement gaps remain for Part 2 planning
+
+---
+
+### 2026-03-10 - Part 2 Implementation (Solidity + Hardhat)
+**Request**: "okay implement PRD_part2 please thanks"
+
+**Instructions Given to AI**:
+- Implement Part 2 from `Documentation/PRD_part2.md`
+- Keep Part 2 separate from Part 1 C++ codebase
+- Provide contract, script, tests, and usage documentation
+
+**AI Actions Taken**:
+- Scaffolded Hardhat TypeScript workspace at repo root:
+   - `package.json`, `hardhat.config.ts`, `tsconfig.json`, `.env.example`
+- Implemented `contracts/ArbitrageValidator.sol` with required signature:
+   - `validateCycle(tokens, pools, amountIn, minOut)` (view)
+   - live reserve reads via Uniswap V2 pair interface
+   - hop route validation and V2 amount-out formula
+   - custom-error revert conditions per PRD
+- Added `validateCycleTx(...)` + event for optional transaction-mode evidence (tx hash/block)
+- Implemented `contracts/MockV2Pair.sol` for deterministic tests
+- Implemented `test/ArbitrageValidator.test.ts` covering required scenarios:
+   - profitable cycle success
+   - non-profitable revert
+   - below-minOut revert
+   - route/pool mismatch revert
+   - length mismatch revert
+   - zero reserve revert
+- Implemented scripts:
+   - `scripts/deployValidator.ts`
+   - `scripts/validateCycle.ts` (`call` and `tx` modes)
+- Added Part 2 data/docs:
+   - `part2_data/candidate_cycle.example.json`
+   - `part2_data/README.md`
+   - `scripts/README_part2.md`
+   - `Documentation/part2_report.md`
+- Updated top-level docs:
+   - `README.md` with Part 2 setup/build/test/deploy/validate commands
+   - `.gitignore` for Node/Hardhat artifacts and `.env`
+
+**Files Created/Edited**:
+- Created: `package.json`, `tsconfig.json`, `hardhat.config.ts`, `.env.example`
+- Created: `contracts/ArbitrageValidator.sol`, `contracts/MockV2Pair.sol`
+- Created: `scripts/deployValidator.ts`, `scripts/validateCycle.ts`, `scripts/README_part2.md`
+- Created: `test/ArbitrageValidator.test.ts`
+- Created: `part2_data/candidate_cycle.example.json`, `part2_data/README.md`
+- Created: `Documentation/part2_report.md`
+- Updated: `README.md`, `.gitignore`, `Documentation/AI_use.md`
+
+**Verification**:
+- `npm run build:part2` passed (contracts compiled)
+- `npm run test:part2` passed (`6/6` tests)
+
+**Outcome**:
+- Part 2 implementation is complete locally (contract + tests + scripts)
+- Testnet execution remains pending user-provided RPC/private key and deployment
+
+---
+
+### 2026-03-10 - Workspace Tidy-Up (test vs tests)
+**Request**: "okay interesting, can you help me tidy up my workspace? theres test and tests, confusing. Also, do we need to update gitignore and stuff?"
+
+**Instructions Given to AI**:
+- Reduce folder naming confusion between Part 1 and Part 2 tests
+- Update ignore rules for Part 2 tooling artifacts
+
+**AI Actions Taken**:
+- Renamed Hardhat test directory from `test/` to `part2_test/`
+- Updated Part 2 config/docs references:
+   - `hardhat.config.ts` (`paths.tests`)
+   - `tsconfig.json` include paths
+   - `Documentation/PRD_part2.md` repository layout and test path references
+- Expanded `.gitignore` for Node/Hardhat artifacts and env patterns:
+   - `coverage.json`, `ignition/deployments/`, `*.tsbuildinfo`, `npm-debug.log*`
+   - `.env.*` with exception for `!.env.example`
+- Re-ran Part 2 tests to verify no regressions
+
+**Files Edited**:
+- Updated: `hardhat.config.ts`
+- Updated: `tsconfig.json`
+- Updated: `Documentation/PRD_part2.md`
+- Updated: `.gitignore`
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Verification**:
+- `npm run test:part2` passed (`6/6` tests)
+
+**Outcome**:
+- Workspace naming is clearer: `tests/` (C++) vs `part2_test/` (Hardhat)
+- Ignore rules now better cover Part 2 generated/local files

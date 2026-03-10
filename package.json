@@ -1,0 +1,20 @@
+{
+  "name": "launchpad-fyp-part2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Part 2 on-chain validation for DEX arbitrage challenge",
+  "scripts": {
+    "build:part2": "hardhat compile",
+    "test:part2": "hardhat test",
+    "deploy:part2": "hardhat run scripts/deployValidator.ts",
+    "validate:part2": "hardhat run scripts/validateCycle.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "dotenv": "^16.4.7",
+    "hardhat": "^2.22.18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

@@ -57,3 +57,42 @@ Expected current result (with `v2pools.json`, depth `3`):
 - After liquidity filter: `3786` pools, `3399` tokens in graph
 - Cycles detected: `474`
 - Profitable cycles: `38`
+
+## Part 2 (On-Chain Validation)
+
+Part 2 is implemented with Solidity + Hardhat in parallel to the C++ Part 1 flow.
+
+### Part 2 Prerequisites
+- Node.js 20+
+- npm
+
+### Install Part 2 Dependencies
+```powershell
+npm install
+```
+
+### Compile Part 2 Contracts
+```powershell
+npm run build:part2
+```
+
+### Run Part 2 Tests
+```powershell
+npm run test:part2
+```
+
+### Deploy Validator (Optional, testnet)
+1. Copy `.env.example` to `.env` and fill RPC/private key values.
+2. Run:
+```powershell
+npm run deploy:part2 -- --network sepolia
+```
+
+### Validate a Candidate Cycle
+```powershell
+npm run validate:part2 -- --network sepolia --file part2_data/candidate_cycle.example.json
+```
+
+Notes:
+- `mode: "call"` performs `eth_call` simulation.
+- `mode: "tx"` sends a transaction via `validateCycleTx(...)` and prints tx hash + block number.
