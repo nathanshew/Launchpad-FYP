@@ -1,0 +1,66 @@
+DEX Arbitrage Mini Challenge
+Overview
+This is a small coding challenge (~2 hour) designed to explore how AI-assisted development (e.g., ChatGPT, DeepSeek, vibe coding tools) can help with rapid problem solving.
+You are encouraged to use AI tools extensively during this task.
+In your final report, briefly describe:
+- What AI tools you used
+- How they helped you
+- Any problems or limitations you encountered
+Note: This challenge does not require prior knowledge of cryptocurrency or DeFi.
+Background
+In AMM-based decentralized exchanges (DEXs), token swaps form a directed graph:
+- Nodes = tokens
+- Edges = swap pools
+A profitable arbitrage occurs when swapping through a cycle of pools returns more tokens than initially spent.
+Example cycle:
+Token A → Token B → Token C → Token A
+If the final amount of Token A is greater than the starting amount, the cycle is profitable.
+Traders typically exploit these opportunities by:
+1. Detecting arbitrage loops off-chain
+2. Submitting the cycle to a smart contract for atomic execution
+Part 1: Off-Chain Cycle Detection
+You will be provided with a snapshot of Uniswap V2 pools including pool reserves, fee settings, and token metadata.
+Tasks:
+1. Load the dataset
+2. Construct a directed token swap graph
+3. Model swap output using the AMM formula
+4. Detect arbitrage cycles
+5. Rank opportunities based on simulated profit
+Deliverables:
+- A C++ or Rust script that builds the swap graph and detects cycles
+- Output the Top-10 most profitable cycles
+- Suggest a reasonable trade size
+Report should include:
+- Graph construction method
+- Cycle detection logic
+- Ranking metric used
+- How AI tools were used during development
+Part 2: On-Chain Profitability Validation (Optional)
+Candidate cycles from Part 1 will be submitted to a smart contract for validation.
+The contract should:
+1. Fetch current reserves from pools
+2. Recompute the swap cycle
+3. Check whether the cycle is still profitable
+If not profitable, the transaction should revert.
+Deliverables:
+- Solidity function accepting encoded cycle data:
+  tokens[], pools[], amountIn, minOut
+- Script that submits cycles for validation
+- Report describing:
+  - Data encoding format
+  - Validation logic
+  - Revert conditions
+Evaluation Criteria
+Correctness
+- Accurate cycle detection and validation
+Strategy
+- Reasonable detection and ranking logic
+Code Quality
+- Clear structure and readable implementation
+Documentation
+- GitHub repository with commented code
+- Short report explaining the approach
+Additional Notes
+Creativity is encouraged — try different approaches.
+No real trading is required; this is a simulation. For the smart contract, you can use Ethereum testnet. 
+AI tools (ChatGPT, DeepSeek, etc.) are encouraged — but document how you used them in your report.
