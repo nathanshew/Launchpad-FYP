@@ -396,3 +396,54 @@ Notes:
 - Build directory contains ~30MB of compiled code and dependencies
 - Generated HTML reports are user-specific and shouldn't be committed
 - IDE files vary by developer and should remain local
+
+---
+
+### 2026-03-10 - Source Code Commenting and Readability Pass
+**Request**: "okay now, look through my src, and help me comment the code, such that its human friendly, thanks"
+
+**Instructions Given to AI**:
+- Review `src/` and add human-friendly comments
+- Keep comments practical and explanatory (focus on intent and logic)
+- Preserve behavior while improving readability
+
+**AI Actions Taken**:
+- Reviewed all source modules in `src/` and added/expanded comments in core algorithm paths
+- Added class/function-level documentation for responsibilities and data flow
+- Added inline comments for critical logic branches and design constraints:
+   - Uniswap V2 fee math and reserve updates
+   - State isolation (local reserves only) during simulation
+   - DFS traversal/backtracking behavior
+   - Canonical cycle deduplication (rotation + reverse normalization)
+   - USD price estimation via median aggregation
+   - Liquidity filtering and end-to-end pipeline flow in `main.cpp`
+- Rebuilt and ran tests to verify no regressions after documentation-only changes
+
+**Files Edited**:
+- Updated: `src/Token.h`
+- Updated: `src/Token.cpp`
+- Updated: `src/Pool.h`
+- Updated: `src/Pool.cpp`
+- Updated: `src/Graph.h`
+- Updated: `src/Graph.cpp`
+- Updated: `src/CycleDetector.h`
+- Updated: `src/CycleDetector.cpp`
+- Updated: `src/ArbitrageAnalyzer.h`
+- Updated: `src/ArbitrageAnalyzer.cpp`
+- Updated: `src/JSONParser.h`
+- Updated: `src/JSONParser.cpp`
+- Updated: `src/main.cpp`
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Outcome**:
+- Source code is significantly more approachable for human readers
+- Core algorithms now include rationale and expected behavior notes
+- Build succeeded and test suite remained green
+
+**Verification**:
+- Build: `cmake --build build --config Debug` passed
+- Tests: `ctest --test-dir build -C Debug --output-on-failure` passed (`10/10` tests)
+
+**Notes**:
+- Comments were added to explain "why" and "how" for complex logic, not to restate obvious syntax
+- No functional changes intended in this pass beyond readability/documentation improvements
