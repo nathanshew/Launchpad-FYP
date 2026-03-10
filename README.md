@@ -1,6 +1,16 @@
 # Launchpad-FYP
 
-DEX arbitrage cycle detection project for Uniswap V2 snapshot data.
+**DEX Arbitrage Mini Challenge - Complete Implementation**
+
+This project implements off-chain arbitrage cycle detection (Part 1) and on-chain validation (Part 2) for Uniswap V2 pools.
+
+📄 **[Read the comprehensive final report](Documentation/REPORT.md)**
+
+Quick links:
+- [Integration Guide](Documentation/INTEGRATION.md)
+- [AI Usage Log](Documentation/AI_USE.md)
+- [Product Requirements (Part 1)](Documentation/PRD.md)
+- [Product Requirements (Part 2)](Documentation/PRD_PART2.md)
 
 ## Requirements
 - C++17 compiler

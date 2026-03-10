@@ -8,6 +8,7 @@
 #include "CycleDetector.h"
 #include "Graph.h"
 #include "HTMLExporter.h"
+#include "JSONExporter.h"
 #include "JSONParser.h"
 /**
  * DEX Arbitrage Analyzer - Main EntryPoint
@@ -86,6 +87,18 @@ int main(int argc, char** argv) {
         exporter.exportReport(top, outputFile, cycles.size(), opportunities.size());
 
         std::cout << "Wrote HTML report: " << outputFile << "\n";
+
+        // STEP 7: Export cycles for Part 2 validation
+        // Placeholder validator address - update after Part 2 deployment
+        std::string validatorAddress = "0xYourValidatorAddress";
+        std::string jsonOutputFile = "part1_cycles_for_validation.json";
+        
+        JSONExporter jsonExporter;
+        jsonExporter.exportForValidation(top, jsonOutputFile, validatorAddress, 10);
+        
+        std::cout << "Wrote Part 2 validation input: " << jsonOutputFile << "\n";
+        std::cout << "Update validatorAddress in source before Part 2 validation.\n";
+        
         return 0;
     } catch (const std::exception& ex) {
         std::cerr << "Error: " << ex.what() << "\n";

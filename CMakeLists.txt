@@ -22,6 +22,7 @@ add_library(arbitrage_lib
   src/JSONParser.cpp
   src/ArbitrageAnalyzer.cpp
   src/HTMLExporter.cpp
+  src/JSONExporter.cpp
 )
 
 target_include_directories(arbitrage_lib PUBLIC src)
@@ -40,11 +41,11 @@ if(BUILD_TESTING)
   FetchContent_MakeAvailable(googletest)
 
   add_executable(arbitrage_tests
-    tests/test_main.cpp
-    tests/test_Token.cpp
-    tests/test_Pool.cpp
-    tests/test_Graph.cpp
-    tests/test_CycleDetector.cpp
+    tests/part1/test_main.cpp
+    tests/part1/test_Token.cpp
+    tests/part1/test_Pool.cpp
+    tests/part1/test_Graph.cpp
+    tests/part1/test_CycleDetector.cpp
   )
 
   target_include_directories(arbitrage_tests PRIVATE src)

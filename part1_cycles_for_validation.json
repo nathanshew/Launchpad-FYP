@@ -1,0 +1,142 @@
+[
+  {
+    "rank": 1,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0x514910771af9ca656af840dff83e8264ecf986ca", "0x6b175474e89094c44da98b954eedeac495271d0f", "0xd233d1f6fd11640081abb8db125f722b5dc729dc", "0x514910771af9ca656af840dff83e8264ecf986ca"],
+    "pools": ["0x6d4fd456edeca58cf53a8b586cd50754547dbdb2", "0x1d1126cc2c77384448913b41fbf308563aae1f16", "0x81a8bd7f2b29cee72aae18da9b4637acf4bc125a"],
+    "amountIn": "42281336628870242304",
+    "minOut": "42281336628870242304",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 1976.76,
+      "roi": 147.481,
+      "optimalTradeSize": 42.2813
+    }
+  },
+  {
+    "rank": 2,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0x4922a015c4407f87432b179bb209e125432e4a2a", "0xdac17f958d2ee523a2206206994597c13d831ec7", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0x4922a015c4407f87432b179bb209e125432e4a2a"],
+    "pools": ["0xec565af969ac889387a73844c2ab07ad17e2793a", "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852", "0x57fc8adbf7b583b929c51df0da16008651c1de78"],
+    "amountIn": "431017700000000064",
+    "minOut": "431017700000000064",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 59.059,
+      "roi": 7.57772,
+      "optimalTradeSize": 0.431018
+    }
+  },
+  {
+    "rank": 3,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0xc690f7c7fcffa6a82b79fab7508c466fefdfc8c5", "0xdacd69347de42babfaecd09dc88958378780fb62", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"],
+    "pools": ["0x80ddbeeb05788980caa0b1b433b40d4443f4439e", "0xfaa5c3ecea51183ca1e825d0e94eba8d860351ae", "0xc4d9102e36c5063b98010a03c1f7c8bd44c32a00"],
+    "amountIn": "234233009700794400",
+    "minOut": "234233009700794400",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 25.1975,
+      "roi": 3.8144,
+      "optimalTradeSize": 0.234233
+    }
+  },
+  {
+    "rank": 4,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0x41bc0913ed789428e107c4ea9ed007815c5a8230", "0xdac17f958d2ee523a2206206994597c13d831ec7", "0x6a625ddb2e2a2de0257c5129364dd80bb4afa3b9", "0x41bc0913ed789428e107c4ea9ed007815c5a8230"],
+    "pools": ["0x682841c22d62d7b9602d2e34a41853dc57020223", "0x337b182f3cafe0b3ea6105a1816aa369f3607885", "0xd84358b128953a7ee6ef4f136a4fcc39f58c2735"],
+    "amountIn": "2900860467935810181660672",
+    "minOut": "2900860467935810181660672",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 14.7776,
+      "roi": 4.42402,
+      "optimalTradeSize": 2.90086e+06
+    }
+  },
+  {
+    "rank": 5,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0x1c9922314ed1415c95b9fd453c3818fd41867d0b", "0xe53ec727dbdeb9e2d5456c3be40cff031ab40a55", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0x1c9922314ed1415c95b9fd453c3818fd41867d0b"],
+    "pools": ["0xb8a52f6403fb94dc8325511d8bdfc7c77c0fc3b8", "0x25647e01bd0967c1b9599fa3521939871d1d0888", "0x4e9e73c0170f09e709573127c4ab02e57b868178"],
+    "amountIn": "63451269552474702217216",
+    "minOut": "63451269552474702217216",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 10.4992,
+      "roi": 0.586632,
+      "optimalTradeSize": 63451.3
+    }
+  },
+  {
+    "rank": 6,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0x618e75ac90b12c6049ba3b27f5d5f8651b0037f6", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d", "0x618e75ac90b12c6049ba3b27f5d5f8651b0037f6"],
+    "pools": ["0x394481b3d4ec4fa6d22579148a2f609ae8256fde", "0xa5e79baee540f000ef6f23d067cd3ac22c7d9fe6", "0x4a9db20153506e45edbc95850af056c4258b376a"],
+    "amountIn": "2834259686310000197632",
+    "minOut": "2834259686310000197632",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 10.2083,
+      "roi": 4.90811,
+      "optimalTradeSize": 2834.26
+    }
+  },
+  {
+    "rank": 7,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0xf9a2d7e60a3297e513317ad1d7ce101cc4c6c8f6", "0xf21661d0d1d76d3ecb8e1b9f1c923dbfffae4097", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"],
+    "pools": ["0x9eb369241e4270796e665ea1afac355cb99f0c32", "0x06ed871e5a66bebf0af6fb768d343b1d14a04b5b", "0x0b85b3000bef3e26e01428d1b525a532ea7513b8"],
+    "amountIn": "151999895793019328",
+    "minOut": "151999895793019328",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 9.7897,
+      "roi": 2.28372,
+      "optimalTradeSize": 0.152
+    }
+  },
+  {
+    "rank": 8,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0x5af2be193a6abca9c8817001f45744777db30756", "0xa91c82b6933105c23298e631a0c1be751d239162", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0x5af2be193a6abca9c8817001f45744777db30756"],
+    "pools": ["0x02389061347a16e8d9fd0bbbda0bc0110c981f03", "0x9e0f4648d2cc986196580184ed9459aba16262bf", "0x74948a441fa42ae60fc39e993ed0a81041186566"],
+    "amountIn": "61085753164800000000",
+    "minOut": "61085753164800000000",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 8.09959,
+      "roi": 4.98132,
+      "optimalTradeSize": 61.0858
+    }
+  },
+  {
+    "rank": 9,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0xc690f7c7fcffa6a82b79fab7508c466fefdfc8c5", "0xd9016a907dc0ecfa3ca425ab20b6b785b42f2373", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"],
+    "pools": ["0xcf7a4c424df675a23362965714f338b21dcf8d5d", "0xc8aa5662c8708225bfdf7f6ce3267579de8f2d06", "0x5ed0dde7441efcd728e31cfd055c4c7efe20a57b"],
+    "amountIn": "1475388791910000230400",
+    "minOut": "1475388791910000230400",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 8.0606,
+      "roi": 0.546653,
+      "optimalTradeSize": 1475.39
+    }
+  },
+  {
+    "rank": 10,
+    "validatorAddress": "0xYourValidatorAddress",
+    "tokens": ["0x30bcd71b8d21fe830e493b30e90befba29de9114", "0x5a43589fe110bb355ba4a90a9c01476d87e68de8", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0x30bcd71b8d21fe830e493b30e90befba29de9114"],
+    "pools": ["0x9e8462fc61a5f3b5ffa6edb03a4c3e4590ec6bf2", "0x786c62294a2ab6c7c84f11c7a8aead69bc0f9104", "0xb1637be0173330664adecb343faf112ca837da06"],
+    "amountIn": "39146611945225355264",
+    "minOut": "39146611945225355264",
+    "mode": "call",
+    "metadata": {
+      "profitUsd": 7.41023,
+      "roi": 1.77784,
+      "optimalTradeSize": 39.1466
+    }
+  }
+]

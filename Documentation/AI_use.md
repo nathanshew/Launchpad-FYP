@@ -676,3 +676,136 @@ Notes:
 **Outcome**:
 - Part 2 validation path is now reproducible on Sepolia with known-good fixture data
 - User can run call/tx validation modes using documented commands
+
+---
+
+### 2026-03-10 - Part 1 → Part 2 Integration (Mainnet Fork Testing)
+**Request**: "right, they should be connected please" followed by mainnet fork validation testing
+
+**Instructions Given to AI**:
+- Connect Part 1 output to Part 2 input
+- Enable validation of Part 1 cycles against real mainnet pools
+- Test end-to-end pipeline with fork
+
+**AI Actions Taken**:
+- Created `src/JSONExporter.h` and `src/JSONExporter.cpp` to export Part 1 cycles in Part 2 format
+- Modified `src/main.cpp` to automatically generate `part1_cycles_for_validation.json`
+- Fixed integer overflow in amount conversion (uint64 → string-based)
+- Added mainnet fork network config to `hardhat.config.ts`
+- Created `scripts/validatePart1Cycles.ts` with auto-deployment for fork testing
+- Added npm scripts: `fork:mainnet`, `validate:part1-cycles`
+- Created `Documentation/INTEGRATION.md` with complete workflow guide
+- Updated CMakeLists.txt to include JSONExporter
+
+**Testing Results**:
+- Part 1 ran and exported 10 cycles from `v2pools.json` analysis
+- Validator deployed on mainnet fork: `0xf7BddaBcD4fCBb87090F8aBa76aA5060A17e0C43`
+- Validated all 10 cycles against current mainnet reserves
+- Result: **0/10 cycles still profitable due to reserve drift**
+- Validator correctly rejected cycles with `BelowMinOut` errors
+
+**Files Created/Edited**:
+- Created: `src/JSONExporter.h`, `src/JSONExporter.cpp`
+- Created: `scripts/validatePart1Cycles.ts`
+- Created: `Documentation/INTEGRATION.md`
+- Updated: `src/main.cpp`, `CMakeLists.txt`, `hardhat.config.ts`, `package.json`
+- Updated: `REPORT.md`, `Documentation/part2_report.md`
+- Updated: `Documentation/AI_use.md` - This log entry
+
+**Outcome**:
+- Part 1 → Part 2 pipeline fully integrated and tested
+- Demonstrates realistic scenario: historical cycles become unprofitable as pool reserves change
+- Validator correctly protects against executing invalid cycles on-chain
+- Complete arbitrage detection → validation workflow proven end-to-end
+
+---
+
+### 2026-03-10 - Project Cleanup and Standardization
+**Request**: "okay very good. Now, please tidy up the entire project. All AI use should be recorded. I should only have 1 final report, covering both parts 1 and 2. The naming conventions should be the same, lets say capital letters and stuff. Similarly, folders, tests and part2_test, we should use the same name. Maybe have tests, and in it 2 folders idk. Delete all irrelevant files not used, then test everything against task.txt"
+
+**Instructions Given to AI**:
+- Consolidate all reports into one final comprehensive report
+- Standardize naming conventions (consistent capitalization)
+- Reorganize test folders for consistency (tests/part1/ and tests/part2/)
+- Delete redundant documentation files
+- Ensure all AI use is recorded
+- Verify everything against task.txt requirements
+
+**AI Actions Taken**:
+1. **Report Consolidation**:
+   - Deleted redundant `Documentation/final_report.md` and `Documentation/part2_report.md`
+   - Kept comprehensive `REPORT.md` at root covering both Part 1 and Part 2
+
+2. **Test Folder Reorganization**:
+   - Created `tests/part1/` and `tests/part2/` subdirectories
+   - Moved all C++ test files from `tests/*.cpp` to `tests/part1/*.cpp`
+   - Moved TypeScript tests from `part2_test/ArbitrageValidator.test.ts` to `tests/part2/ArbitrageValidator.test.ts`
+   - Deleted empty `part2_test/` folder
+   - Updated `CMakeLists.txt` to point to `tests/part1/*.cpp`
+   - Updated `hardhat.config.ts` to point to `tests/part2/`
+
+3. **Naming Convention Standardization**:
+   - Renamed `Documentation/AI_use.md` → `Documentation/AI_USE.md`
+   - Renamed `Documentation/PRD_part2.md` → `Documentation/PRD_PART2.md`
+   - Renamed `Documentation/Task.txt` → `Documentation/TASK.txt`
+   - Deleted `scripts/README_part2.md` (redundant)
+   - Deleted `part2_data/README.md` (redundant)
+
+4. **Repository Structure Update**:
+   - Updated `REPORT.md` repository structure diagram to reflect new organization
+   - Verified all documentation references are accurate
+
+5. **Testing and Verification**:
+   - Rebuilt Part 1: CMake configuration and build successful
+   - Ran Part 1 tests: **10/10 tests passing**
+   - Ran Part 2 tests: **6/6 tests passing**
+   - All functionality verified working after reorganization
+
+**Files Created/Edited**:
+- Deleted: `Documentation/final_report.md`, `Documentation/part2_report.md`
+- Deleted: `scripts/README_part2.md`, `part2_data/README.md`
+- Renamed: `Documentation/AI_use.md` → `Documentation/AI_USE.md`
+- Renamed: `Documentation/PRD_part2.md` → `Documentation/PRD_PART2.md`
+- Renamed: `Documentation/Task.txt` → `Documentation/TASK.txt`
+- Moved: All test files to `tests/part1/` and `tests/part2/` structure
+- Updated: `CMakeLists.txt`, `hardhat.config.ts`, `REPORT.md`
+- Updated: `Documentation/AI_USE.md` - This log entry
+
+**Verification Results**:
+- Part 1 build: ✓ Successful
+- Part 1 tests: ✓ 10/10 passing
+- Part 2 tests: ✓ 6/6 passing
+- All file references updated correctly
+- Repository structure clean and consistent
+
+**Outcome**:
+- Single comprehensive `REPORT.md` serving as final deliverable for both parts
+- Consistent naming conventions throughout (uppercase for Documentation files)
+- Clean test folder structure with logical part1/part2 organization
+- No redundant or conflicting documentation files
+- All tests passing after reorganization
+- Project ready for final task.txt verification and submission
+
+---
+
+### 2026-03-10 - Final Documentation Organization
+**Request**: "okay great, can we file the REPORT.md under documentation? Also update AI Use thanks"
+
+**Instructions Given to AI**:
+- Move REPORT.md from root to Documentation folder
+- Update AI_USE.md to record this change
+
+**AI Actions Taken**:
+- Moved `REPORT.md` to `Documentation/REPORT.md`
+- Updated `README.md` to fix documentation links
+- Updated this AI usage log
+
+**Files Created/Edited**:
+- Moved: `REPORT.md` → `Documentation/REPORT.md`
+- Updated: `README.md` - Fixed links to point to new locations and removed deleted report references
+- Updated: `Documentation/AI_USE.md` - This log entry
+
+**Outcome**:
+- All major documentation files now centralized in Documentation folder
+- Final project structure: clean separation between code (src/, tests/, contracts/, scripts/) and documentation (Documentation/)
+- Project organization complete and ready for submission

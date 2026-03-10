@@ -17,7 +17,7 @@ const config: HardhatUserConfig = {
   },
   paths: {
     sources: "./contracts",
-    tests: "./part2_test",
+    tests: "./tests/part2",
     cache: "./cache",
     artifacts: "./artifacts"
   },
@@ -26,6 +26,10 @@ const config: HardhatUserConfig = {
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL || "",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
+    },
+    mainnetFork: {
+      url: "http://127.0.0.1:8545"
+      // Uses fork's default accounts (pre-funded with 10000 ETH each)
     }
   }
 };
